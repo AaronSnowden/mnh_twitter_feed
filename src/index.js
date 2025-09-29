@@ -24,6 +24,8 @@ app.get("/api/tweets", async (req, res) => {
     const userData = await userRes.json();
     const userId = userData.data?.id;
 
+    console.log(userData);
+
     if (!userId) {
       return res.status(404).json({ error: "User not found" });
     }
