@@ -1,6 +1,16 @@
 // api/tweets.js
 import express from "express";
+import cors from "cors";
+
 const app = express();
+
+// ✅ Enable CORS only for your frontend domain
+app.use(
+  cors({
+    origin: "https://mnh.musph.ac.ug", // restrict to your domain
+    methods: ["GET", "OPTIONS"],
+  })
+);
 
 app.get("/api/tweets", async (req, res) => {
   const TWITTER_BEARER_TOKEN =
@@ -13,6 +23,7 @@ app.get("/api/tweets", async (req, res) => {
   }
 
   try {
+    // Get user ID from Twitter
     const userRes = await fetch(
       `https://api.twitter.com/2/users/by/username/${username}`,
       {
@@ -21,6 +32,7 @@ app.get("/api/tweets", async (req, res) => {
         },
       }
     );
+
     const userData = await userRes.json();
     const userId = userData.data?.id;
 
@@ -30,6 +42,7 @@ app.get("/api/tweets", async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
+    // Fetch latest tweets
     const tweetRes = await fetch(
       `https://api.twitter.com/2/users/${userId}/tweets?max_results=5&tweet.fields=created_at`,
       {
@@ -38,8 +51,8 @@ app.get("/api/tweets", async (req, res) => {
         },
       }
     );
-    const tweets = await tweetRes.json();
 
+    const tweets = await tweetRes.json();
     res.json(tweets);
   } catch (err) {
     console.error(err);
